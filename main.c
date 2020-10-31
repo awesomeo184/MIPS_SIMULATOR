@@ -37,8 +37,37 @@ void find_register(unsigned int rn) {
     }  
 }
 
-int ALU(unsigned int funct, int a, int b) {
-
+int ALU(int fct, int v1, int v2) {
+	if (fct == 0)//sll
+		return v1 << v2;
+	else if (fct == 2) {//srl
+		return (v1 >> v2) & (0xffffffff >> v2);
+	}
+	else if (fct == 3)//sra
+		return v1 >> v2;
+	else if (fct == 24)//mul
+		return v1 * v2;
+	else if (fct == 32)//add
+		return v1 + v2;
+	else if (fct == 34)//sub
+		return v1 - v2;
+	else if (fct == 36)//and
+		return v1 & v2;
+	else if (fct == 37)//or
+		return v1 | v2;
+	else if (fct == 38)//xor
+		return v1 ^ v2;
+	else if (fct == 39)//nor
+		return ~(v1 | v2);
+	else if (fct == 42) {//slt
+		if (v1 < v2)
+			return 1;
+		else
+			return 0;
+	}
+	else {
+		printf("wrong ALU function");
+	}
 }
 
 int REG(int A, int v, int nRW) {
