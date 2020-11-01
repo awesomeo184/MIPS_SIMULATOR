@@ -163,8 +163,105 @@ int find_instructions(unsigned int IR) {
 
 }
 
+unsigned int BigEndian(unsigned int data) {
+	unsigned char dataChar[4];
+
+	dataChar[3] = data;
+	data = data >> 8;
+	dataChar[2] = data;
+	data = data >> 8;
+	dataChar[1] = data;
+	data = data >> 8;
+	dataChar[0] = data;
+
+	return *(unsigned int*)dataChar;
+}
+
 
 int main() {
-    printf("Hello, World!\n");
-    return 0;
+	FILE* pFile = NULL;
+	errno_t err;
+	int count;
+	unsigned int data;
+	char com[50];
+	int i;	//파일 read시 명령어 라인 수
+
+	printf("<<MIPS Simulator>>\n");
+	printf("Made by 강경욱, 노은진, 박승리, 정수현\n\n");
+	printf("l: Load program\nj: Jump program\ng: Go program\ns: Step\nm: View Memory\nr: View register\nx: Program exit\n");
+	printf("sr <register number> <value>: 특정 레지스터의 값 설정\nsm <location> <value>: 메모리 특정 주소의 값 설정\n\n");
+
+	while (1) {
+		printf("Enter command: ");
+		scanf("%s", com);
+
+		if (com[0] == 'l') {//load program
+			i = 0;
+			err = fopen_s(&pFile, "as_ex01_arith.bin", "rb");
+			if (err) {
+				printf("Cannot open file\n");
+				return 1;
+			}
+
+			memset(progMEM, 0, sizeof(progMEM));
+			memset(dataMEM, 0, sizeof(dataMEM));
+			memset(stackMEM, 0, sizeof(stackMEM));
+
+			while (1) {
+				count = fread(&data, sizeof(data), 1, pFile);
+				if (count != 1)
+					break;
+				data = BigEndian(data);
+
+				if (i <= 1) {
+					if (i == 0) {
+						printf("Number of Instuntions: %d", data);
+					}
+					else {
+						printf(", Number of Data: %d\n", data);
+					}
+				}
+				else {
+					printf("%8x\n", data);
+				}
+				i++;
+			}
+			fclose(pFile);
+		}
+
+		else if (com[0] == 's' && com[1] == 'r') {//레지스터 값 설정
+			printf("sr\n");
+		}
+
+		else if (com[0] == 's' && com[1] == 'm') {//메모리 값 설정
+			printf("sm\n");
+		}
+
+		else if (com[0] == 'j') {//jump program
+			printf("jump\n");
+		}
+
+		else if (com[0] == 'g') {//go program
+			printf("go\n");
+		}
+
+		else if (com[0] == 's') {//step
+			printf("step\n");
+		}
+
+		else if (com[0] == 'm') {//view memory
+			printf("memory\n");
+		}
+
+		else if (com[0] == 'r') {//view register
+			printf("register\n");
+		}
+
+		else if (com[0] == 'x')//program exit
+			return 0;
+
+		else
+			printf("wrong command please check\n");
+	}
+	return 0;
 }
