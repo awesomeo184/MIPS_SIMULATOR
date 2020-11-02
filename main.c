@@ -183,21 +183,31 @@ int main() {
 	errno_t err;
 	int count;
 	unsigned int data;
-	char com[50];
+	char com[5]; //command저장
 	int i;	//파일 read시 명령어 라인 수
+	char filename[50]; //l command에서 사용. open 할 파일 이름
+	char jumpStart[20]; //j command에서 사용. jump할 주소 저장
+	char start[20], end[20]; //m command에서 사용. 보여줄 메모리 시작과 끝 위치 저장
+	char regNum[20], srVal[20]; //sr command에서 사용. 레지스터와 변경값 저장
+	char loc[20], smVal[20]; //sm command에서 사용. 메모리 주소와 변경값 저장.
 
 	printf("<<MIPS Simulator>>\n");
 	printf("Made by 강경욱, 노은진, 박승리, 정수현\n\n");
-	printf("l: Load program\nj: Jump program\ng: Go program\ns: Step\nm: View Memory\nr: View register\nx: Program exit\n");
-	printf("sr <register number> <value>: 특정 레지스터의 값 설정\nsm <location> <value>: 메모리 특정 주소의 값 설정\n\n");
+	printf("-------------------------------------------------------\n");
+	printf("l <file name>\t\t: Load program\nj <starting address>\t: Jump program\ng\t\t\t: Go program\ns\t\t\t: Step\n");
+	printf("m <start> <end>\t\t: View Memory\nr\t\t\t: View register\nx\t\t\t: Program exit\n");
+	printf("sr <reg num> <value>\t: 특정 레지스터의 값 설정\nsm <location> <value>\t: 메모리 특정 주소의 값 설정\n");
+	printf("cp\t\t\t: command guide print\n"); //사용 가능한 command 다시 출력.
+	printf("-------------------------------------------------------\n");
 
 	while (1) {
-		printf("Enter command: ");
+		printf("\nEnter command: ");
 		scanf("%s", com);
 
 		if (com[0] == 'l') {//load program
+			scanf("%s", filename);
 			i = 0;
-			err = fopen_s(&pFile, "as_ex01_arith.bin", "rb");
+			err = fopen_s(&pFile, filename, "rb"); //as_ex01_arith.bin, as_ex02_logic.bin, as_ex03_ifelse.bin, as_ex04_fct.bin
 			if (err) {
 				printf("Cannot open file\n");
 				return 1;
@@ -230,15 +240,22 @@ int main() {
 		}
 
 		else if (com[0] == 's' && com[1] == 'r') {//레지스터 값 설정
-			printf("sr\n");
+			scanf("%s", regNum);
+			scanf("%s", srVal);
+			printf("sr, %s, %s\n", regNum, srVal);
 		}
 
 		else if (com[0] == 's' && com[1] == 'm') {//메모리 값 설정
-			printf("sm\n");
+			scanf("%s", loc);
+			scanf("%s", smVal);
+			printf("sm, %s, %s\n", loc, smVal);
 		}
 
 		else if (com[0] == 'j') {//jump program
-			printf("jump\n");
+			scanf("%s", jumpStart);
+			printf("current PC: %x\n", PC);
+			setPC(strtol(jumpStart, NULL, 16));
+			printf("PC moved to %x\n", PC);
 		}
 
 		else if (com[0] == 'g') {//go program
@@ -250,7 +267,9 @@ int main() {
 		}
 
 		else if (com[0] == 'm') {//view memory
-			printf("memory\n");
+			scanf("%s", start);
+			scanf("%s", end);
+			printf("memory, %s, %s\n", start, end);
 		}
 
 		else if (com[0] == 'r') {//view register
@@ -259,6 +278,15 @@ int main() {
 
 		else if (com[0] == 'x')//program exit
 			return 0;
+
+		else if (com[0] == 'c' && com[1] == 'p') { //command guide print
+			printf("-------------------------------------------------------\n");
+			printf("l <file name>\t\t: Load program\nj <starting address>\t: Jump program\ng\t\t\t: Go program\ns\t\t\t: Step\n");
+			printf("m <start> <end>\t\t: View Memory\nr\t\t\t: View register\nx\t\t\t: Program exit\n");
+			printf("sr <reg num> <value>\t: 특정 레지스터의 값 설정\nsm <location> <value>\t: 메모리 특정 주소의 값 설정\n");
+			printf("cp\t\t\t: command guide print\n");
+			printf("-------------------------------------------------------\n");
+		}
 
 		else
 			printf("wrong command please check\n");
