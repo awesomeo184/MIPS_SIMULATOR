@@ -14,7 +14,7 @@
 #define EXIT 0
 #define ERROR -1
 
-int regi[32];
+int reg[32];
 int HI = 0, LO = 0;
 unsigned int PC = 0x400000;
 unsigned char progMEM[0x100000], dataMEM[0x100000], stackMEM[0x100000];
@@ -184,12 +184,15 @@ int main() {
 	int count;
 	unsigned int data;
 	char com[5]; //command저장
-	int i;	//파일 read시 명령어 라인 수
+	int linecount;	//파일 read시 명령어 라인 수
 	char filename[50]; //l command에서 사용. open 할 파일 이름
-	char jumpStart[20]; //j command에서 사용. jump할 주소 저장
-	char start[20], end[20]; //m command에서 사용. 보여줄 메모리 시작과 끝 위치 저장
-	char regNum[20], srVal[20]; //sr command에서 사용. 레지스터와 변경값 저장
-	char loc[20], smVal[20]; //sm command에서 사용. 메모리 주소와 변경값 저장.
+	unsigned int jumpStart = 0; //j command에서 사용. jump할 주소 저장
+	unsigned int start = 0, end = 0; //m command에서 사용. 보여줄 메모리 시작과 끝 위치 저장
+	unsigned int regNum = 0;
+	int srVal = 0; //sr command에서 사용. 레지스터와 변경값 저장
+	unsigned int loc = 0;
+	int smVal = 0; //sm command에서 사용. 메모리 주소와 변경값 저장.
+	char check[2]; //y/n check
 
 	printf("<<MIPS Simulator>>\n");
 	printf("Made by 강경욱, 노은진, 박승리, 정수현\n\n");
@@ -240,21 +243,39 @@ int main() {
 		}
 
 		else if (com[0] == 's' && com[1] == 'r') {//레지스터 값 설정
-			scanf("%s", regNum);
-			scanf("%s", srVal);
-			printf("sr, %s, %s\n", regNum, srVal);
+			scanf("%d", &regNum);
+			scanf("%d", &srVal);
+
+			if (regNum < 0 || regNum >= 32) {
+				printf("Wrong register number\n");
+				continue;
+			}
+
+			find_register(regNum);
+			printf(" = %x to ", reg[regNum]);
+			find_register(regNum);
+			printf(" = %x Are you sure? [y/n]: ", srVal);
+			scanf("%s", check);
+
+			if (check[0] == 'y') {
+				reg[regNum] = srVal;
+				printf("Change Successful!\n");
+			}
+			else{
+				printf("Change Failed!\n");
+			}
 		}
 
 		else if (com[0] == 's' && com[1] == 'm') {//메모리 값 설정
-			scanf("%s", loc);
-			scanf("%s", smVal);
-			printf("sm, %s, %s\n", loc, smVal);
+			scanf("%x", &loc);
+			scanf("%d", &smVal);
+			printf("sm, %x, %x\n", loc, smVal);
 		}
 
 		else if (com[0] == 'j') {//jump program
-			scanf("%s", jumpStart);
+			scanf("%x", &jumpStart);
 			printf("current PC: %x\n", PC);
-			setPC(strtol(jumpStart, NULL, 16));
+			setPC(jumpStart);
 			printf("PC moved to %x\n", PC);
 		}
 
@@ -267,13 +288,16 @@ int main() {
 		}
 
 		else if (com[0] == 'm') {//view memory
-			scanf("%s", start);
-			scanf("%s", end);
+			scanf("%x", &start);
+			scanf("%x", &end);
 			printf("memory, %s, %s\n", start, end);
 		}
 
 		else if (com[0] == 'r') {//view register
-			printf("register\n");
+			for (int i = 0; i < 32; i++) {
+				find_register(i);
+				printf(": %x\n", reg[i]);
+			}
 		}
 
 		else if (com[0] == 'x')//program exit
