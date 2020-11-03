@@ -136,7 +136,7 @@ int main() {
 
 		if (com[0] == 'l') {//load program
 			scanf("%s", filename);
-			int i = 0;
+			linecount = 0;
 			err = fopen_s(&pFile, filename, "rb"); //as_ex01_arith.bin, as_ex02_logic.bin, as_ex03_ifelse.bin, as_ex04_fct.bin
 			if (err) {
 				printf("Cannot open file\n");
@@ -153,8 +153,8 @@ int main() {
 					break;
 				data = BigEndian(data);
 
-				if (i <= 1) {
-					if (i == 0) {
+				if (linecount <= 1) {
+					if (linecount == 0) {
 						printf("Number of Instuntions: %d", data);
 					}
 					else {
@@ -164,7 +164,7 @@ int main() {
 				else {
 					printf("%8x\n", data);
 				}
-				i++;
+				linecount++;
 			}
 			fclose(pFile);
 		}
