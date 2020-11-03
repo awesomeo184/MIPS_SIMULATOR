@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <sys/errno.h>
+
 #define PROG 0x004
 #define DATA 0x100
 #define STACK 0x7FF
@@ -18,6 +21,17 @@ int reg[32];
 int HI = 0, LO = 0;
 unsigned int PC = 0x400000;
 unsigned char progMEM[0x100000], dataMEM[0x100000], stackMEM[0x100000];
+
+// fopen_s adaptor for MacOS
+errno_t fopen_s(FILE **f, const char *name, const char *mode) {
+    errno_t ret = 0;
+    assert(f);
+    *f = fopen(name, mode);
+    /* Can't be sure about 1-to-1 mapping of errno and MS' errno_t */
+    if (!*f)
+        ret = errno;
+    return ret;
+}
 
 void setPC(unsigned int val) {
     PC = val;
@@ -159,8 +173,24 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 	}
 }
 
-int find_instructions(unsigned int IR) {
+unsigned int getOpcode(unsigned int IR) {
+    unsigned int opcode = IR >> 26;
+    return opcode;
+}
 
+unsigned int getFunct(unsigned int IR) {
+    unsigned int funct = (IR << 26) >> 26;
+    return funct
+}
+
+int find_instructions(unsigned int IR) {
+    unsigned int opc;
+    unsigned int funct;
+    char inst[8] = ""; //instruction name
+
+    opc = getOpcode(IR);
+    funct = getFunct(IR);
+    // keep working
 }
 
 unsigned int BigEndian(unsigned int data) {
@@ -209,7 +239,7 @@ int main() {
 
 		if (com[0] == 'l') {//load program
 			scanf("%s", filename);
-			i = 0;
+			int i = 0;
 			err = fopen_s(&pFile, filename, "rb"); //as_ex01_arith.bin, as_ex02_logic.bin, as_ex03_ifelse.bin, as_ex04_fct.bin
 			if (err) {
 				printf("Cannot open file\n");
