@@ -1,3 +1,4 @@
+#pragma warning (disable : 4996) // _s(언더바s) 함수 말고 기본 함수사용해도 오류 안 나게 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
