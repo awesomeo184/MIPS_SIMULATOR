@@ -337,9 +337,11 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 					
 				break;
 			case J: //J-Format
-			case JAL:
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
 				break;
+			case JAL:
+				REG(31, PC + 4, WRITE); //돌아올 주소를 $ra에 저장
+				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
 			case BEQ: //beq
 				if (REG(IR.IR.II.rs, 0, READ) == REG(IR.IR.II.rt, 0, READ)) { //레지스터의 내용이 같으면
 					setPC(PC + IR.IR.II.offset * INST_SIZE); //분기하고
