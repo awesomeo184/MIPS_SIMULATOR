@@ -216,6 +216,8 @@ void printInstruction(const INST IR) { //명령어들은
 	else {
 		printf("  ");
 	}
+	
+	printf("  [%08X]", IR.address);
 
 
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
