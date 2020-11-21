@@ -282,14 +282,6 @@ void printInstruction(const INST IR) { //명령어들은
 }
 
 void conductInstruction(const INST IR) { //실제 명령어들을 실행시키기 위한 함수
-	const char* opcode_table[] = //opcode 선택을 위한 룩업테이블
-	{ "R", "bltz", "j", "jal", "beq", "bne", 0, 0, "addi", 0, "slti", 0, "andi", "ori", "xori", "lui", 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "lb", 0, 0, "lw", "lbu", 0, 0, 0, "sb", 0, 0, "sw", 0, 0, 0, 0 };
-
-	const char* funct_table[] = //funct 선택을 위한 룩업테이블
-	{ "sll", 0, "srl", "sra", 0, 0, 0, 0, "jr", 0, 0, 0, "syscall", 0, 0, 0, "mfhi", 0, "mflo", 0, 0, 0, 0, 0,
-		"mul", 0, 0, 0, 0, 0, 0, 0, "add", 0, "sub", 0, "and", "or", "xor", "nor", 0, 0, "slt", 0, 0, 0, 0, 0 };
-
 	int access_size = 0;
 
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
