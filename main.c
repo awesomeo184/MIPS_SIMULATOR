@@ -458,6 +458,7 @@ void step() //step
 	int input = 1;
 	int address = 0;
 		
+	setPC(ORIGIN_ADDR);
 
 	for (i = 8; i < instructionNumber * INST_SIZE + INST_SIZE * 2; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
 		
@@ -541,7 +542,6 @@ int printMenu() { //UI 함수
 	switch (selection) {
 	case 's':
 		step();
-		setPC(ORIGIN_ADDR);
 		return RERUN;
 	case 'l':
 		clearMemory();
