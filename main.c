@@ -456,7 +456,7 @@ int loadFile(const char* file_name) { //파일을 읽어오는
 	return 1;
 }
 
-void step() //
+void step() //step
 {
 	unsigned int i = 0, j = 0;
 	INST IR;
