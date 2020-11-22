@@ -279,7 +279,6 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 	}
 }
 
-// 명령어 처리
 int readInstruction(const unsigned char MEM[], unsigned int i, const unsigned int n) {
 	int result = 0; //명령어를 저장할 변수
 
@@ -297,7 +296,7 @@ int readInstruction(const unsigned char MEM[], unsigned int i, const unsigned in
 
 }
 
-void printInstruction(const INST IR) { //명령어들은 
+void printInstruction(const INST IR) {
 	const char* opcode_table[] = //opcode 선택을 위한 룩업테이블
 	{ "R", "bltz", "j", "jal", "beq", "bne", 0, 0, "addi", 0, "slti", 0, "andi", "ori", "xori", "lui", 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "lb", 0, 0, "lw", "lbu", 0, 0, 0, "sb", 0, 0, "sw", 0, 0, 0, 0 };
@@ -312,7 +311,7 @@ void printInstruction(const INST IR) { //명령어들은
 	else {
 		printf("  ");
 	}
-	
+
 	printf("  [%08X]", IR.address);
 
 
@@ -393,9 +392,9 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 		case JR_SYS: //jr와 syscall
 			if (((IR.IR.RI.funct) & LOWER_3BIT) == JR) { //jr
 				setPC(REG(IR.IR.RI.rs, 0, READ)); //rs에 저장된 주소를 읽어서 점프
-				REG(29, MEM(0x7FF00000 + stackCounter - INST_SIZE, 0, READ, WORD), WRITE);
-				MEM(0x7FF00000 + stackCounter - INST_SIZE, 0, WRITE, WORD);
-				stackCounter -= WORD;
+				REG(31, MEM(REG(29, 0, READ) - INST_SIZE, 0, READ, WORD), WRITE); //스택포인터에 저장해둔 주소를 다시 ra에 저장
+				MEM(REG(29, 0, READ), 0, WRITE, WORD); //복구 이전에 스택메모리에 저장되어있던 내용을 0으로 만들어서 이전 데이터를 없앰.
+				REG(29, REG(29, 0, READ) - INST_SIZE, WRITE); //스택포인터를 다시 복구						
 			} 
 			else { //syscall
 				setPC(PC + 4);
@@ -434,10 +433,10 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
 				break;
 			case JAL:
-				MEM(0x7FF00000 + stackCounter, REG(29, 0, READ), WRITE, WORD);
-				REG(29, PC + 4, WRITE); //돌아올 주소를 $ra에 저장
+				MEM(REG(29, 0, READ), REG(31, 0, READ), WRITE, WORD); //ra에 저장된 주소를 스택포인터에 저장된 주소의 스택메모리에 저장
+				REG(31, PC + 4, WRITE); //돌아올 주소를 $ra에 저장
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
-				stackCounter += WORD;
+				REG(29, REG(29, 0, READ) + INST_SIZE, WRITE); //스택포인터 증가
 				break;
 			case BEQ: //beq
 				if (REG(IR.IR.II.rs, 0, READ) == REG(IR.IR.II.rt, 0, READ)) { //레지스터의 내용이 같으면
@@ -460,7 +459,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 
 		case IMM_INST: //뒤에 i가 붙는 명령어들
 			if ((IR.IR.II.opcode & LOWER_3BIT) == LUI) { //lui는 포맷이 다르기 때문에 따로 설정
-				REG(IR.IR.II.rt, IR.IR.II.offset & 0xFFFF0000, WRITE); //상위 16bit를 읽어서 저장
+				REG(IR.IR.II.rt, IR.IR.II.offset << 16, WRITE); //상위 16bit를 읽어서 저장
 			}
 			else { //그외 imm 사용하는 명령어들
 				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR.II.opcode, &Z), WRITE);
@@ -480,7 +479,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				break;
 			}
 
-			REG(IR.IR.II.rt, MEM(IR.IR.II.rs + IR.IR.II.offset * access_size, 0, READ, access_size), WRITE);			
+			REG(IR.IR.II.rt, MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, 0, READ, access_size), WRITE);			
 			setPC(PC + 4);
 			break;
 		case STORE_INST: //store 계열 명령어
@@ -493,12 +492,13 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				break;
 			}
 
-			MEM(IR.IR.II.rs + IR.IR.II.offset, REG(IR.IR.II.rs + (IR.IR.II.offset * access_size), IR.IR.II.rt, READ), WRITE, access_size);
+			MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, REG(IR.IR.II.rs + IR.IR.II.offset, IR.IR.II.rt, READ), WRITE, access_size);
 			setPC(PC + 4);
 			break;
 		}			
 	}
 }
+
 
 void waitInput() { //화면 지우기 전에 입력을 기다리는 함수
 	printf("Press Enter to continue...\n");
@@ -627,7 +627,7 @@ void go() {
 	}
 }
 
-void clearMemory() { //메모리 비워주는 함수
+void clearMemory() {
 	memset(progMEM, 0, sizeof(progMEM));
 	memset(stackMEM, 0, sizeof(stackMEM));
 	memset(dataMEM, 0, sizeof(dataMEM));
@@ -635,7 +635,17 @@ void clearMemory() { //메모리 비워주는 함수
 	dataNumber = 0;
 }
 
-int printMenu() { //UI 함수
+void viewRegister() {
+	int i = 0;
+
+	for (i = 0; i < 32; i++) {
+		printf("[$%d] : %d\n", i, regi[i]);
+	}
+	
+	
+}
+
+int printMenu() {
 	char selection = '\0';
 	char fileName[32] = { 0 };
 
@@ -658,10 +668,10 @@ int printMenu() { //UI 함수
 	case 'x':
 		return EXIT;
 	case 'r':
-		//구현 필요
+		viewRegister();
 		return RERUN;
-	case 'v':
-		//구현 필요
+	case 'm':
+		//구현필요
 		return RERUN;
 	default:
 		printf("잘못된 명령어를 입력하셨습니다.\n");
@@ -671,13 +681,15 @@ int printMenu() { //UI 함수
 
 
 int main() {
+
 	setPC(ORIGIN_ADDR);
+	REG(29, 0x7FF00000, WRITE); //처음에 스택포인터를 스택메모리 시작 주소로 설정
 
 	while (printMenu()) {
  		waitInput();
 		system("cls");
 	}
 
-	return 0;
+    return 0;
 }
 
