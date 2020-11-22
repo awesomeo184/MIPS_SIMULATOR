@@ -665,11 +665,13 @@ int printMenu() { //UI 함수
 
 
 int main() {
-    setPC(ORIGIN_ADDR);
+	setPC(ORIGIN_ADDR);
 
 	while (printMenu()) {
  		waitInput();
 		system("cls");
 	}
+
+    return 0;
 }
 
