@@ -506,7 +506,7 @@ void waitInput() { //화면 지우기 전에 입력을 기다리는 함수
 	getchar();
 }
 
-int loadFile(const char* file_name) { //파일을 읽어오는 
+int loadFile(const char* file_name) {
 	FILE* fp = NULL; //파일을 읽어올 파일 포인터
 	unsigned int i = 0; //반복문에 쓸 변수
 	INST IR;
@@ -528,22 +528,23 @@ int loadFile(const char* file_name) { //파일을 읽어오는
 	instructionNumber = readInstruction(MEM, 0, INST_SIZE); //명령어의 개수를 불러옴. (처음 4바이트는 명령어의 개수)
 	dataNumber = readInstruction(MEM, INST_SIZE, INST_SIZE * 2); //데이터의 개수를 불러옴. (그 다음 4바이트는 데이터의 개수)
 
+	i = 0;
 
-	while (i < instructionNumber + 2) { //명령어의 개수를 가진만큼
-		fseek(fp, i * INST_SIZE, SEEK_SET); //파일포인터의 위치를 4바이트씩 증가시킴.
+	while (i < instructionNumber) { //명령어의 개수를 가진만큼
 		fread(&progMEM[i * INST_SIZE], INST_SIZE, 1, fp); //파일포인터의 현 위치에서 메모리에 명령어를 4바이트씩 프로그램 메모리에 저장함.
 		i++; //인덱스 증가
 	}
 
+	i = 0;
+
 	while (feof(fp) == 0) { //파일포인터가 파일의 끝에 도달할 때까지
-		fseek(fp, i * INST_SIZE, SEEK_SET); //파일포인터의 위치를 4바이트씩 증가시킴.
 		fread(&dataMEM[i * INST_SIZE], INST_SIZE, 1, fp); //파일포인터의 현 위치에서 메모리에 명령어를 4바이트씩 데이터 메모리에 저장함.
 		i++; //인덱스 증가
 	}
 	
-	for (i = 8; i < instructionNumber * INST_SIZE + INST_SIZE * 2; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+	for (i = 0; i < instructionNumber * INST_SIZE; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
 		IR.IR.inst = readInstruction(progMEM, i, i + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
-		IR.address = ORIGIN_ADDR + i - 8;
+		IR.address = ORIGIN_ADDR + i;
 		printInstruction(IR); //IR를 해석하여 출력
 	}
 
