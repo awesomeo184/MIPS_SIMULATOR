@@ -380,11 +380,12 @@ void printInstruction(const INST IR) { //명령어들은
 
 void conductInstruction(const INST IR) { //실제 명령어들을 실행시키기 위한 함수
 	int access_size = 0;
+	int Z = 0;
 
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
 		switch (((IR.IR.RI.funct) & UPPER_3BIT) >> 3) { //상위 3bit로 명령어 종류 파악
 		case SHIFT: //shift
-			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rt, IR.IR.RI.shamt, IR.IR.RI.funct), WRITE);
+			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rt, IR.IR.RI.shamt, IR.IR.RI.funct, &Z), WRITE);
 			setPC(PC + 4);
 			break;
 
@@ -408,7 +409,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 			break;
 
 		default: //나머지 명령어들
-			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rs, IR.IR.RI.rt, IR.IR.RI.funct), WRITE); 
+			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rs, IR.IR.RI.rt, IR.IR.RI.funct, &Z), WRITE);
 			setPC(PC + 4);
 		}		
 	}
@@ -431,6 +432,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 			case JAL:
 				REG(31, PC + 4, WRITE); //돌아올 주소를 $ra에 저장
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
+				break;
 			case BEQ: //beq
 				if (REG(IR.IR.II.rs, 0, READ) == REG(IR.IR.II.rt, 0, READ)) { //레지스터의 내용이 같으면
 					setPC(PC + IR.IR.II.offset * INST_SIZE); //분기하고
@@ -455,7 +457,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				REG(IR.IR.II.rt, IR.IR.II.offset & 0xFFFF0000, WRITE); //상위 16bit를 읽어서 저장
 			}
 			else { //그외 imm 사용하는 명령어들
-				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR.II.opcode), WRITE); 
+				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR.II.opcode, &Z), WRITE);
 			}
 
 			setPC(PC + 4);
