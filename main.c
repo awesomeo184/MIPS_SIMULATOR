@@ -49,7 +49,7 @@
 #define LBU 4
 #define SB 0
 #define SW 3
-#define ORIGIN_ADDR 0x400024
+#define ORIGIN_ADDR 0x400000
 
 typedef union instructionRegister
 {
@@ -393,7 +393,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 		case JR_SYS: //jr와 syscall
 			if (((IR.IR.RI.funct) & LOWER_3BIT) == JR) { //jr
 				setPC(REG(IR.IR.RI.rs, 0, READ)); //rs에 저장된 주소를 읽어서 점프
-				REG(31, MEM(0x7FF00000 + stackCounter - INST_SIZE, 0, READ, WORD), WRITE);
+				REG(29, MEM(0x7FF00000 + stackCounter - INST_SIZE, 0, READ, WORD), WRITE);
 				MEM(0x7FF00000 + stackCounter - INST_SIZE, 0, WRITE, WORD);
 				stackCounter -= WORD;
 			} 
@@ -434,8 +434,8 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
 				break;
 			case JAL:
-				MEM(0x7FF00000 + stackCounter, REG(31, 0, READ), WRITE, WORD);
-				REG(31, PC + 4, WRITE); //돌아올 주소를 $ra에 저장
+				MEM(0x7FF00000 + stackCounter, REG(29, 0, READ), WRITE, WORD);
+				REG(29, PC + 4, WRITE); //돌아올 주소를 $ra에 저장
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
 				stackCounter += WORD;
 				break;
