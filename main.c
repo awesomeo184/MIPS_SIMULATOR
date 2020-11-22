@@ -217,11 +217,11 @@ int REG(int A, int v, int nRW) {
 
 //메모리 접근 함수
 int MEM(unsigned int A, int V, int nRW, int S) {
-    unsigned int sel, offset;
+	unsigned int sel, offset;
 	unsigned char* pM;
 
-	if (S < 0 || S > 2) {
-		printf("Wrong Memory Size Input\n Only can access with byte(0), halfword(1), or word(2)\n");
+	if (S != BYTE && S != HWORD && S != WORD) {
+		printf("Wrong Memory Size Input\n Only can access with byte(0), halfword(2), or word(4)\n");
 		return 0;
 	}
 
@@ -242,8 +242,8 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 		exit(1);
 	}
 
-	if (S == 0) {  // byte
-		if (nRW == 0) { // read
+	if (S == BYTE) {  // byte
+		if (nRW == READ) { // read
 			return pM[offset];
 		}
 		else if (nRW == 1) { // write
@@ -251,21 +251,21 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 		}
 	}
 
-	else if (S == 1) { // half word
+	else if (S == HWORD) { // half word
 		if (nRW == 0) { // read
 			return (pM[offset] | (pM[offset + 1] << 8));
 		}
-		else if (nRW == 1) { // write
+		else if (nRW == WRITE) { // write
 			pM[offset] = V;
 			pM[offset + 1] = V >> 8;
 		}
 	}
 
-	else if (S == 2) { // word
-		if (nRW == 0) { // read
+	else if (S == WORD) { // word
+		if (nRW == READ) { // read
 			return (pM[offset] | (pM[offset + 1] << 8) | (pM[offset + 2] << 16) | (pM[offset + 3] << 24));
 		}
-		else if (nRW == 1) { // write
+		else if (nRW == WRITE) { // write
 			pM[offset] = V;
 			pM[offset + 1] = V >> 8;
 			pM[offset + 2] = V >> 16;
