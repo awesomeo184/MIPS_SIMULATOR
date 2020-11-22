@@ -553,22 +553,22 @@ int loadFile(const char* file_name) {
 	return 1;
 }
 
-void step() //step
+void step()
 {
 	unsigned int i = 0, j = 0;
 	INST IR;
 	char selection = 0;
 	int input = 1;
 	int address = 0;
-		
+
 	setPC(ORIGIN_ADDR);
 
-	for (i = 8; i < instructionNumber * INST_SIZE + INST_SIZE * 2; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+	for (i = 0; i < instructionNumber * INST_SIZE; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
 		
-		for (j = 8; j < instructionNumber * INST_SIZE + INST_SIZE * 2; j += INST_SIZE) //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+		for (j = 0; j < instructionNumber * INST_SIZE; j += INST_SIZE) //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
 		{
 			IR.IR.inst = readInstruction(progMEM, j, j + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
-			IR.address = ORIGIN_ADDR + j - 8;
+			IR.address = ORIGIN_ADDR + j;
 			printInstruction(IR); //IR를 해석하여 출력
 		}
 
@@ -602,26 +602,26 @@ void step() //step
 	}
 }
 
-void go() { //g 
+void go() {
 	unsigned int i = 0, j = 0;
 	INST IR;
 	char selection = 0;
 
 	setPC(ORIGIN_ADDR);
 
-	for (i = 8; i < instructionNumber * INST_SIZE + INST_SIZE * 2; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+	for (i = 0; i < instructionNumber * INST_SIZE; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
 
-		for (j = 8; j < instructionNumber * INST_SIZE + INST_SIZE * 2; j += INST_SIZE) //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+		for (j = 0; j < instructionNumber * INST_SIZE; j += INST_SIZE) //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
 		{
 			IR.IR.inst = readInstruction(progMEM, j, j + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
-			IR.address = ORIGIN_ADDR + j - 8;
+			IR.address = ORIGIN_ADDR + j;
 			printInstruction(IR); //IR를 해석하여 출력
 		}
 
 		IR.IR.inst = readInstruction(progMEM, i, i + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
 		conductInstruction(IR);
 
-		if (i < instructionNumber * INST_SIZE + INST_SIZE) {
+		if (i < instructionNumber * INST_SIZE - INST_SIZE) {
 			system("cls");
 		}
 	}
