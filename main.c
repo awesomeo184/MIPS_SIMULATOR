@@ -595,7 +595,7 @@ void step()
 			break;
 		}
 
-		if (i < instructionNumber * INST_SIZE + INST_SIZE) {
+		if (i < instructionNumber * INST_SIZE - INST_SIZE) {
 			system("cls");
 		}
 
