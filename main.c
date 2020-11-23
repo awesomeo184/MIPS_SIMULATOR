@@ -103,13 +103,17 @@ errno_t fopen_s(FILE **f, const char *name, const char *mode) {
 }
 
 void setPC(unsigned int val) {
+	PC = val;
+	return;
 
 }
 
 
-void find_register(unsigned int rn) {
+// void find_register(unsigned int rn) {
+// 	int result = REG(rn, 0, 0);
+// 	return result;
+// }
 
-}
 // start of ALU
 int logicOperation(int X, int Y, int S) {
     if (S < 0 || S > 3){
@@ -211,6 +215,8 @@ int ALU(int X, int Y, int C, int *Z) {
 
 //레지스터 접근 함수
 int REG(int A, int v, int nRW) {
+	if (nRW == 0) return reg[A];		//READ: 0,WRITE: 1
+	if (nRW == 1) reg[A] = v;
 
 }
 
@@ -639,7 +645,7 @@ void viewRegister() {
 	int i = 0;
 
 	for (i = 0; i < 32; i++) {
-		printf("[$%d] : %d\n", i, regi[i]);
+		printf("[$%d] : %d\n", i, reg[i]);
 	}
 	
 	
