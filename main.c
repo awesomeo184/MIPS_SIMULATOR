@@ -90,7 +90,6 @@ unsigned int PC = 0x400000;
 unsigned char progMEM[0x100000], dataMEM[0x100000], stackMEM[0x100000];
 unsigned int instructionNumber = 0; //명령어의 개수를 저장할 변수
 unsigned int dataNumber = 0; //데이터의 개수를 저장할 변수
-unsigned int stackCounter = 0; //스택 인덱스를 카운트
 
 // fopen_s adaptor for MacOS
 errno_t fopen_s(FILE **f, const char *name, const char *mode) {
@@ -278,6 +277,7 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 		return 0;
 	}
 }
+
 
 int readInstruction(const unsigned char MEM[], unsigned int i, const unsigned int n) {
 	int result = 0; //명령어를 저장할 변수
@@ -672,7 +672,7 @@ int printMenu() {
 		return RERUN;
 	case 'm':
 		//구현필요
-		return RERUN;
+		return RERUN;		
 	default:
 		printf("잘못된 명령어를 입력하셨습니다.\n");
 		return RERUN;
