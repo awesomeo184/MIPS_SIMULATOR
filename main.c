@@ -650,38 +650,15 @@ void viewRegister() {
 	
 }
 
-void setReg(){
-	int regAddress;
-	int value;
-	printf("Register address (0~31) \n");
-	scanf("%d", &regAddress);
-	printf("Value to be set");
-	scanf("%x", &value);
-	REG(regAddress, value, 1);
-	viewRegister();
-}
-
-void setMem(){
-	int memAddress;
-	int value;
-	printf("Memory address\n>> ");
-	scanf("%d", &memAddress);
-	printf("Value to be set\n>> ");
-	scanf("%x", &value);
-	MEM(memAddress,value,1,1);
-	MEM(memAddress,value,0,1);  // 바꾸고 읽기
-}
-void viewMemory(){
-	unsigned int start, end, last, sel, offset;
+void printMemory(unsigned int start, unsigned int end){
+	unsigned int last, sel, offset;
 	unsigned char* pM;
 	int address;
-	printf("Range of Memory Address ex) 0x10000000 0x10000010\n>> ");
-	scanf("%x %x", &start, &end);
+
 	sel = start >> 20;
 	offset = start & 0xFFFFF;
 	last = end & 0xFFFFF;
 	address = start;
-	
 
 	if (sel == 0x004)
 		pM = progMEM;         
@@ -699,11 +676,41 @@ void viewMemory(){
 	for (int i = offset; i <= last; i += 1){
 		printf("%x = %x\n", address, *pM);
 		address +=1;
-		pM += 1;
-		
+		pM += 1;	
 	}
+}
 
+void viewMemory(){
+	unsigned int start, end;
+	printf("Range of Memory Address ex) 0x10000000 0x10000010\n>> ");
+	scanf("%x %x", &start, &end);
+	printMemory(start, end);
+}
 
+void setReg(){
+	int regAddress;
+	int value;
+
+	printf("Register address (0~31) \n");
+	scanf("%d", &regAddress);
+	printf("Value to be set");
+	scanf("%x", &value);
+
+	REG(regAddress, value, 1);
+	viewRegister();
+}
+
+void setMem(){
+	int memAddress;
+	int value;
+
+	printf("Memory address\n>> ");
+	scanf("%d", &memAddress);
+	printf("Value to be set\n>> ");
+	scanf("%x", &value);
+
+	MEM(memAddress,value,1,1);
+	printMemory(memAddress,memAddress); // 바꾸고 읽기
 }
 
 
@@ -727,10 +734,10 @@ int printMenu() {
 
 			step();
 			break;
-		case 'r': // 특정 레지스터 값 변경
+		case 'r': 
 			setReg();
 			break;
-		case 'm': // 특정 메모리 주소 값 설정
+		case 'm': 
 			setMem();
 			break;
 		}
