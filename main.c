@@ -284,7 +284,6 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 	}
 }
 
-
 int readInstruction(const unsigned char MEM[], unsigned int i, const unsigned int n) {
 	int result = 0; //명령어를 저장할 변수
 
@@ -385,7 +384,7 @@ void printInstruction(const INST IR) {
 }
 
 void conductInstruction(const INST IR) { //실제 명령어들을 실행시키기 위한 함수
-	int access_size = 0;
+	int accessSize = 0;
 	int Z = 0;
 
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
@@ -473,27 +472,27 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 			switch (IR.IR.II.opcode & LOWER_3BIT) { //하위 3bit로 명령어 세부 판단
 			case LB: 
 			case LBU: //byte 단위 명령어면 바이트로 설정
-				access_size = BYTE;
+				accessSize = BYTE;
 				break;
 			case LW: //word 단위명 워드로 설정
-				access_size = WORD;
+				accessSize = WORD;
 				break;
 			}
 
-			REG(IR.IR.II.rt, MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, 0, READ, access_size), WRITE);			
+			REG(IR.IR.II.rt, MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, 0, READ, accessSize), WRITE);			
 			setPC(PC + 4);
 			break;
 		case STORE_INST: //store 계열 명령어
 			switch (IR.IR.II.opcode & LOWER_3BIT) { //하위 3bit로 명령어 세부 판단
 			case SB: //byte 단위명 바이트로 설정
-				access_size = BYTE;
+				accessSize = BYTE;
 				break;
 			case SW: //word 단위면 워드로 설정
-				access_size = WORD;
+				accessSize = WORD;
 				break;
 			}
 
-			MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, REG(IR.IR.II.rs + IR.IR.II.offset, IR.IR.II.rt, READ), WRITE, access_size);
+			MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, REG(IR.IR.II.rs + IR.IR.II.offset, IR.IR.II.rt, READ), WRITE, accessSize);
 			setPC(PC + 4);
 			break;
 		}			
@@ -516,9 +515,11 @@ int loadFile(const char* file_name) {
 	fp = fopen(file_name, "rb"); //파일 열기
 
 	if (fp == NULL) { //파일 열기 오류 발생시 처리
-		printf("파일 열기 오류발생\n"); //문구 출력 후 종료
+		printf("File Open Error!\n"); //문구 출력 후 종료
 		return ERROR;
 	}
+
+	fileLoad = LOADED; //파일이 로드됨.
 
 	while (i < 2) { //명령어와 데이터의 개수를 가지고 있는 데이터들만
 		fseek(fp, i * INST_SIZE, SEEK_SET); //파일포인터의 위치를 4바이트씩 증가시킴.
@@ -577,7 +578,7 @@ void step()
 		conductInstruction(IR);
 
 		if (input == 1) {
-			printf("계속하려면 s를 누르세요.");
+			printf("Press Enter to continue to step!\n");
 			rewind(stdin);
 			scanf("%c", &selection);
 		}
@@ -586,8 +587,6 @@ void step()
 		case 'g':
 			input = 0;
 			selection = 0;
-			break;
-		case 's':
 			break;
 		case 'j':
 			scanf("%x", &address);
@@ -640,7 +639,7 @@ void viewRegister() {
 	int i = 0;
 
 	for (i = 0; i < 32; i++) {
-		printf("[$%d] : %d\n", i, reg[i]);
+		printf("[$%d] : %d\n", i, regi[i]);
 	}
 	
 	
@@ -648,14 +647,32 @@ void viewRegister() {
 
 int printMenu() {
 	char selection = '\0';
+	char selection2 = '\0';
 	char fileName[32] = { 0 };
 
-	printf("명령어 입력: "); 
+	printf("Command Input: "); 
 	scanf("%c", &selection);
 
 	switch (selection) {
 	case 's':
-		step();
+		scanf("%c", &selection2);
+		switch (selection2) {
+		case '\n':
+			if (fileLoad == UNLOADED) {
+				printf("File should be loaded first!\n");
+				break;
+			}
+
+			step();
+			break;
+		case 'r':
+			//구현필요
+			break;
+		case 'm':
+			//구현필요
+			break;
+		}
+		
 		return RERUN;
 	case 'l':
 		clearMemory();
@@ -675,7 +692,7 @@ int printMenu() {
 		//구현필요
 		return RERUN;		
 	default:
-		printf("잘못된 명령어를 입력하셨습니다.\n");
+		printf("Invalid Command!\n");
 		return RERUN;
 	}
 }
@@ -684,7 +701,7 @@ int printMenu() {
 int main() {
 
 	setPC(ORIGIN_ADDR);
-	REG(29, 0x7FF00000, WRITE); //처음에 스택포인터를 스택메모리 시작 주소로 설정
+	REG(29, STACK_ADDR, WRITE); //처음에 스택포인터를 스택메모리 시작 주소로 설정
 
 	while (printMenu()) {
  		waitInput();
@@ -693,4 +710,3 @@ int main() {
 
     return 0;
 }
-
