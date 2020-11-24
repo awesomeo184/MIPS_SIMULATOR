@@ -644,7 +644,7 @@ void viewRegister() {
 	int i = 0;
 
 	for (i = 0; i < 32; i++) {
-		printf("[$%d] : %d\n", i, regi[i]);
+		printf("[$%d] : %d\n", i, reg[i]);
 	}
 	
 	
