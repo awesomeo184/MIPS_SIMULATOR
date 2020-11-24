@@ -686,6 +686,11 @@ int printMenu() {
 		loadFile(fileName);		
 		return RERUN;
 	case 'g':
+		if (fileLoad == UNLOADED) {
+			printf("File should be loaded first!\n");
+			return RERUN;
+		}	
+			
 		go();
 		return RERUN;
 	case 'x':
