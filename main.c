@@ -50,6 +50,10 @@
 #define SB 0
 #define SW 3
 #define ORIGIN_ADDR 0x400000
+#define STACK_ADDR 0x80000000
+#define UNLOADED 0
+#define LOADED 1
+
 
 typedef union instructionRegister
 {
@@ -90,6 +94,7 @@ unsigned int PC = 0x400000;
 unsigned char progMEM[0x100000], dataMEM[0x100000], stackMEM[0x100000];
 unsigned int instructionNumber = 0; //명령어의 개수를 저장할 변수
 unsigned int dataNumber = 0; //데이터의 개수를 저장할 변수
+unsigned int fileLoad = UNLOADED;
 
 // fopen_s adaptor for MacOS
 errno_t fopen_s(FILE **f, const char *name, const char *mode) {
