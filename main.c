@@ -650,6 +650,63 @@ void viewRegister() {
 	
 }
 
+void setReg(){
+	int regAddress;
+	int value;
+	printf("Register address (0~31) \n");
+	scanf("%d", &regAddress);
+	printf("Value to be set");
+	scanf("%x", &value);
+	REG(regAddress, value, 1);
+	viewRegister();
+}
+
+void setMem(){
+	int memAddress;
+	int value;
+	printf("Memory address\n>> ");
+	scanf("%d", &memAddress);
+	printf("Value to be set\n>> ");
+	scanf("%x", &value);
+	MEM(memAddress,value,1,1);
+	MEM(memAddress,value,0,1);  // 바꾸고 읽기
+}
+void viewMemory(){
+	unsigned int start, end, last, sel, offset;
+	unsigned char* pM;
+	int address;
+	printf("Range of Memory Address ex) 0x10000000 0x10000010\n>> ");
+	scanf("%x %x", &start, &end);
+	sel = start >> 20;
+	offset = start & 0xFFFFF;
+	last = end & 0xFFFFF;
+	address = start;
+	
+
+	if (sel == 0x004)
+		pM = progMEM;         
+
+	else if (sel == 0x100)
+		pM = dataMEM;  
+
+	else if (sel == 0x7FF)
+		pM = stackMEM; 
+
+	else {
+		printf("No memory\n");
+		exit(1);
+	}
+	for (int i = offset; i <= last; i += 1){
+		printf("%x = %x\n", address, *pM);
+		address +=1;
+		pM += 1;
+		
+	}
+
+
+}
+
+
 int printMenu() {
 	char selection = '\0';
 	char selection2 = '\0';
@@ -670,11 +727,11 @@ int printMenu() {
 
 			step();
 			break;
-		case 'r':
-			//구현필요
+		case 'r': // 특정 레지스터 값 변경
+			setReg();
 			break;
-		case 'm':
-			//구현필요
+		case 'm': // 특정 메모리 주소 값 설정
+			setMem();
 			break;
 		}
 		
@@ -699,7 +756,7 @@ int printMenu() {
 		viewRegister();
 		return RERUN;
 	case 'm':
-		//구현필요
+		viewMemory();
 		return RERUN;		
 	default:
 		printf("Invalid Command!\n");
