@@ -686,7 +686,7 @@ void viewMemory(){
 	scanf("%x %x", &start, &end);
 	for (unsigned int i = start; i <= end ; i += 1 ){
 		value = MEM(i, 0, 0, 1);
-		printf("%x = %x\n", start, value);
+		printf("%x = %x\n", i, value);
 		
 	}
 }
