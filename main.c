@@ -649,42 +649,46 @@ void viewRegister() {
 	
 	
 }
+// 나중에 최종 때 지우겠습니다!!
+// void printMemory(unsigned int start, unsigned int end){
+// 	unsigned int last, sel, offset;
+// 	unsigned char* pM;
+// 	int address;
 
-void printMemory(unsigned int start, unsigned int end){
-	unsigned int last, sel, offset;
-	unsigned char* pM;
-	int address;
+// 	// sel = start >> 20;
+// 	offset = start & 0xFFFFF;
+// 	last = end & 0xFFFFF;
+// 	address = start;
 
-	sel = start >> 20;
-	offset = start & 0xFFFFF;
-	last = end & 0xFFFFF;
-	address = start;
+	// if (sel == 0x004)
+	// 	pM = progMEM;         
 
-	if (sel == 0x004)
-		pM = progMEM;         
+	// else if (sel == 0x100)
+	// 	pM = dataMEM;  
 
-	else if (sel == 0x100)
-		pM = dataMEM;  
+	// else if (sel == 0x7FF)
+	// 	pM = stackMEM; 
 
-	else if (sel == 0x7FF)
-		pM = stackMEM; 
-
-	else {
-		printf("No memory\n");
-		exit(1);
-	}
-	for (int i = offset; i <= last; i += 1){
-		printf("%x = %x\n", address, *pM);
-		address +=1;
-		pM += 1;	
-	}
-}
+	// else {
+	// 	printf("No memory\n");
+	// 	exit(1);
+	// }
+// 	for (int i = offset; i <= last; i += 1){
+// 		printf("%x = %x\n", address, *pM);
+// 		address +=1;
+// 		pM += 1;	
+// 	}
+// }
 
 void viewMemory(){
-	unsigned int start, end;
-	printf("Range of Memory Address ex) 0x10000000 0x10000010\n>> ");
+	unsigned int start, end, value;
+	printf("Range of Memory Address ex) 0x100000 0x100010\n>> ");
 	scanf("%x %x", &start, &end);
-	printMemory(start, end);
+	for (unsigned int i = start; i <= end ; i += 1 ){
+		value = MEM(i, 0, 0, 1);
+		printf("%x = %x\n", start, value);
+		
+	}
 }
 
 void setReg(){
@@ -701,16 +705,17 @@ void setReg(){
 }
 
 void setMem(){
-	int memAddress;
-	int value;
+	unsigned int memAddress;
+	int value, result;
 
 	printf("Memory address\n>> ");
-	scanf("%d", &memAddress);
+	scanf("%x", &memAddress);
 	printf("Value to be set\n>> ");
 	scanf("%x", &value);
 
 	MEM(memAddress,value,1,1);
-	printMemory(memAddress,memAddress); // 바꾸고 읽기
+	result = MEM(memAddress,0, 0, 1); // 바꾸고 읽기
+	printf("%x = %x\n", memAddress, result);
 }
 
 
