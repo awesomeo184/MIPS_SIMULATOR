@@ -326,19 +326,18 @@ void printInstruction(const INST IR) {
 
 void conductInstruction(const INST IR) { //실제 명령어들을 실행시키기 위한 함수
 	int accessSize = 0;
-	int Z = 0;
 
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
 		switch (((IR.IR.RI.funct) & UPPER_3BIT) >> 3) { //상위 3bit로 명령어 종류 파악
 		case SHIFT: //shift
-			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rt, IR.IR.RI.shamt, IR.IR.RI.funct, &Z), WRITE);
+			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rt, IR.IR.RI.shamt, IR.IR.RI.funct), WRITE);
 			setPC(PC + 4);
 			break;
 
 		case JR_SYS: //jr와 syscall
 			if (((IR.IR.RI.funct) & LOWER_3BIT) == JR) { //jr
 				setPC(REG(IR.IR.RI.rs, 0, READ)); //rs에 저장된 주소를 읽어서 점프
-			} 
+			}
 			else { //syscall
 				setPC(PC + 4);
 			}
@@ -347,30 +346,30 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 		case MF: //mfhi와 mflo
 			if (((IR.IR.RI.funct) & LOWER_3BIT) == MFHI) { //mfhi
 				REG(IR.IR.RI.rd, HI, WRITE); //HI의 내용을 읽어서 저장
-			} 
+			}
 			else { //mflo
 				REG(IR.IR.RI.rd, LO, WRITE); //LO의 내용을 읽어서 저장
-			}			
+			}
 			setPC(PC + 4);
 			break;
 
 		default: //나머지 명령어들
-			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rs, IR.IR.RI.rt, IR.IR.RI.funct, &Z), WRITE);
+			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rs, IR.IR.RI.rt, IR.IR.RI.funct), WRITE);
 			setPC(PC + 4);
-		}		
+		}
 	}
 	else { //IFormat, JFormat
-		switch (((IR.IR.II.opcode) & UPPER_3BIT) >> 3)	{ //상위 3bit로 명령어 종류 파악
+		switch (((IR.IR.II.opcode) & UPPER_3BIT) >> 3) { //상위 3bit로 명령어 종류 파악
 		case BRANCH_JUMP_INST:
-			switch(IR.IR.II.opcode & LOWER_3BIT) {
+			switch (IR.IR.II.opcode & LOWER_3BIT) {
 			case BLTZ: //bltz
 				if (REG(IR.IR.II.rs, 0, READ) < 0) { //값이 0보다 작으면
 					setPC(PC + IR.IR.II.offset * INST_SIZE); //지정된 곳으로 브런치.
-				} 
+				}
 				else {
 					setPC(PC + 4); //아니면 PC를 4만 증가시킴.
 				}
-					
+
 				break;
 			case J: //J-Format
 				setPC((IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000)); //다음 PC에서 상위 4bit를 추출한 것을 offset을 2bit sll한 것과 bitwise or하여 PC 설정
@@ -403,15 +402,15 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				REG(IR.IR.II.rt, IR.IR.II.offset << 16, WRITE); //상위 16bit를 읽어서 저장
 			}
 			else { //그외 imm 사용하는 명령어들
-				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR.II.opcode, &Z), WRITE);
+				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR.II.opcode), WRITE);
 			}
 
 			setPC(PC + 4);
 			break;
-		
+
 		case LOAD_INST:	//load 계열 명령어
 			switch (IR.IR.II.opcode & LOWER_3BIT) { //하위 3bit로 명령어 세부 판단
-			case LB: 
+			case LB:
 			case LBU: //byte 단위 명령어면 바이트로 설정
 				accessSize = BYTE;
 				break;
@@ -420,7 +419,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				break;
 			}
 
-			REG(IR.IR.II.rt, MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, 0, READ, accessSize), WRITE);			
+			REG(IR.IR.II.rt, MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, 0, READ, accessSize), WRITE);
 			setPC(PC + 4);
 			break;
 		case STORE_INST: //store 계열 명령어
@@ -436,7 +435,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 			MEM(REG(IR.IR.II.rs, 0, READ) + IR.IR.II.offset, REG(IR.IR.II.rs + IR.IR.II.offset, IR.IR.II.rt, READ), WRITE, accessSize);
 			setPC(PC + 4);
 			break;
-		}			
+		}
 	}
 }
 
@@ -496,52 +495,6 @@ int loadFile(const char* file_name) {
 	return 1;
 }
 
-void step()
-{
-	unsigned int i = 0, j = 0;
-	INST IR;
-	char selection = 0;
-	int input = 1;
-	int address = 0;
-
-	setPC(ORIGIN_ADDR);
-
-	for (i = 0; i < instructionNumber * INST_SIZE; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
-		
-		for (j = 0; j < instructionNumber * INST_SIZE; j += INST_SIZE) //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
-		{
-			IR.IR.inst = readInstruction(progMEM, j, j + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
-			IR.address = ORIGIN_ADDR + j;
-			printInstruction(IR); //IR를 해석하여 출력
-		}
-
-		IR.IR.inst = readInstruction(progMEM, i, i + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
-		conductInstruction(IR);
-
-		if (input == 1) {
-			printf("Press Enter to continue to step!\n");
-			rewind(stdin);
-			scanf("%c", &selection);
-		}
-
-		switch (selection) {
-		case 'g':
-			input = 0;
-			selection = 0;
-			break;
-		case 'j':
-			scanf("%x", &address);
-			i += (address - PC);
-			setPC(address);
-			break;
-		}
-
-		if (i < instructionNumber * INST_SIZE - INST_SIZE) {
-			system("cls");
-		}
-
-	}
-}
 
 void go() {
 	unsigned int i = 0, j = 0;
@@ -654,6 +607,69 @@ void setMem(){
 	printf("%x = %x\n", memAddress, result);
 }
 
+void step()
+{
+	unsigned int i = 0, j = 0;
+	INST IR;
+	char selection = 0;
+	char selection2 = 0;
+	int input = 1;
+	int address = 0;
+
+	setPC(ORIGIN_ADDR);
+
+	for (i = 0; i < instructionNumber * INST_SIZE; i += INST_SIZE) { //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+
+		for (j = 0; j < instructionNumber * INST_SIZE; j += INST_SIZE) //명령어의 개수에 명령어의 크기 단위를 곱한만큼 루프를 돔.
+		{
+			IR.IR.inst = readInstruction(progMEM, j, j + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
+			IR.address = ORIGIN_ADDR + j;
+			printInstruction(IR); //IR를 해석하여 출력
+		}
+
+		IR.IR.inst = readInstruction(progMEM, i, i + INST_SIZE); //명령어를 차례대로 IR에 읽어온 후
+		conductInstruction(IR);
+
+		if (input == 1) {
+			printf("Press Enter to continue to step!\n");
+			rewind(stdin);
+			scanf("%c", &selection);
+		}
+
+		switch (selection) {
+		case 'g':
+			input = 0;
+			selection = 0;
+			break;
+		case 'j':
+			scanf("%x", &address);
+			i += (address - PC);
+			setPC(address);
+			break;
+		case 'r':
+			viewRegister();
+			break;
+		case 'm':
+			viewMemory();
+			break;
+		case 's':
+			scanf("%c", &selection2);
+			switch (selection2) {
+			case 'r':
+				setReg();
+				break;
+			case 'm':
+				setMem();
+				break;
+			}
+		}
+
+		if (i < instructionNumber * INST_SIZE - INST_SIZE) {
+			system("cls");
+		}
+
+	}
+}
 
 int printMenu() {
 	char selection = '\0';
