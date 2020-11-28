@@ -631,7 +631,7 @@ void step()
 		conductInstruction(IR);
 
 		if (input == 1) {
-			printf("Press Enter to continue to step!\n");
+			printf("Command Input (Enter to step!) : ");
 			rewind(stdin);
 			scanf("%c", &selection);
 		}
