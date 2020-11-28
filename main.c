@@ -243,11 +243,11 @@ int readInstruction(const unsigned char MEM[], unsigned int i, const unsigned in
 }
 
 void printInstruction(const INST IR) {
-	const char* opcode_table[] = //opcode 선택을 위한 룩업테이블
+	const char* opcodeTable[] = //opcode 선택을 위한 룩업테이블
 	{ "R", "bltz", "j", "jal", "beq", "bne", 0, 0, "addi", 0, "slti", 0, "andi", "ori", "xori", "lui", 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "lb", 0, 0, "lw", "lbu", 0, 0, 0, "sb", 0, 0, "sw", 0, 0, 0, 0 };
 
-	const char* funct_table[] = //funct 선택을 위한 룩업테이블
+	const char* functTable[] = //funct 선택을 위한 룩업테이블
 	{ "sll", 0, "srl", "sra", 0, 0, 0, 0, "jr", 0, 0, 0, "syscall", 0, 0, 0, "mfhi", 0, "mflo", 0, 0, 0, 0, 0,
 	"mul", 0, 0, 0, 0, 0, 0, 0, "add", 0, "sub", 0, "and", "or", "xor", "nor", 0, 0, "slt", 0, 0, 0, 0, 0 };
 
@@ -264,24 +264,24 @@ void printInstruction(const INST IR) {
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
 		switch (((IR.IR.RI.funct) & UPPER_3BIT) >> 3) {
 		case SHIFT: //shift 명령어들
-			printf("%s $%d, $%d, %d\n", funct_table[IR.IR.RI.funct], IR.IR.RI.rd, IR.IR.RI.rt, IR.IR.RI.shamt);
+			printf("%s $%d, $%d, %d\n", functTable[IR.IR.RI.funct], IR.IR.RI.rd, IR.IR.RI.rt, IR.IR.RI.shamt);
 			break;
 
 		case JR_SYS:
 			if (((IR.IR.RI.funct) & LOWER_3BIT) == JR) { //jr
-				printf("%s $%d\n", funct_table[IR.IR.RI.funct], IR.IR.RI.rs);
+				printf("%s $%d\n", functTable[IR.IR.RI.funct], IR.IR.RI.rs);
 			}
 			else { //syscall
-				printf("%s\n", funct_table[IR.IR.RI.funct]);
+				printf("%s\n", functTable[IR.IR.RI.funct]);
 			}
 			break;
 
 		case MF: //mhfi, mflo
-			printf("%s %d\n", funct_table[IR.IR.RI.funct], IR.IR.RI.rd);
+			printf("%s %d\n", functTable[IR.IR.RI.funct], IR.IR.RI.rd);
 			break;
 
 		default: //그외 R타입 명령여들
-			printf("%s $%d, $%d, $%d\n", funct_table[IR.IR.RI.funct], IR.IR.RI.rd, IR.IR.RI.rs, IR.IR.RI.rt);
+			printf("%s $%d, $%d, $%d\n", functTable[IR.IR.RI.funct], IR.IR.RI.rd, IR.IR.RI.rs, IR.IR.RI.rt);
 			break;
 
 		}
@@ -292,33 +292,33 @@ void printInstruction(const INST IR) {
 
 			switch (IR.IR.II.opcode & LOWER_3BIT) {
 			case BLTZ: //bltz
-				printf("%s $%d, %d\n", opcode_table[IR.IR.II.opcode], IR.IR.II.rs, IR.IR.II.offset * INST_SIZE);
+				printf("%s $%d, %d\n", opcodeTable[IR.IR.II.opcode], IR.IR.II.rs, IR.IR.II.offset * INST_SIZE);
 				break;
 
 			case J: //J-Format 명령어들
 			case JAL:
-				printf("%s 0x%08X\n", opcode_table[IR.IR.JI.opcode], (IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000));
+				printf("%s 0x%08X\n", opcodeTable[IR.IR.JI.opcode], (IR.IR.JI.target << 2) | ((PC + 4) & 0xF0000000));
 				break;
 
 			case BEQ: //그 외 분기 명령어들
 			case BNE:
-				printf("%s $%d, $%d, %d\n", opcode_table[IR.IR.II.opcode], IR.IR.II.rs, IR.IR.II.rt, IR.IR.II.offset * INST_SIZE);
+				printf("%s $%d, $%d, %d\n", opcodeTable[IR.IR.II.opcode], IR.IR.II.rs, IR.IR.II.rt, IR.IR.II.offset * INST_SIZE);
 				break;
 			}
 			break;
 
 		case IMM_INST:
 			if ((IR.IR.II.opcode & LOWER_3BIT) == LUI) { //lui			
-				printf("%s $%d, %d\n", opcode_table[IR.IR.II.opcode], IR.IR.II.rt, IR.IR.II.offset);
+				printf("%s $%d, %d\n", opcodeTable[IR.IR.II.opcode], IR.IR.II.rt, IR.IR.II.offset);
 			}
 			else { //그외 imm 사용하는 명령어들
-				printf("%s $%d, $%d, %d\n", opcode_table[IR.IR.II.opcode], IR.IR.II.rt, IR.IR.II.rs, IR.IR.II.offset);
+				printf("%s $%d, $%d, %d\n", opcodeTable[IR.IR.II.opcode], IR.IR.II.rt, IR.IR.II.rs, IR.IR.II.offset);
 			}
 			break;
 
 		case LOAD_INST: //메모리 접근 명령어들 출력
 		case STORE_INST:
-			printf("%s $%d, %d($%d)\n", opcode_table[IR.IR.II.opcode], IR.IR.II.rt, IR.IR.II.offset, IR.IR.II.rs);
+			printf("%s $%d, %d($%d)\n", opcodeTable[IR.IR.II.opcode], IR.IR.II.rt, IR.IR.II.offset, IR.IR.II.rs);
 			break;
 		}
 	}
