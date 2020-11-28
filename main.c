@@ -120,102 +120,38 @@ void setPC(unsigned int val) {
 // }
 
 // start of ALU
-int logicOperation(int X, int Y, int S) {
-    if (S < 0 || S > 3){
-        printf("Error in logic operation\n");
-        exit(1);
+int ALU(int v1, int v2, int funct) {
+    if (funct == 0)//sll
+        return v1 << v2;
+    else if (funct == 2) {//srl
+        return (v1 >> v2) & (0xffffffff >> v2);
     }
-    if (S == 0) return X & Y;
-    if (S == 1) return X | Y;
-    if (S == 2) return X ^ Y;
-    if (S == 3) return ~(X | Y);
+    else if (funct == 3)//sra
+        return v1 >> v2;
+    else if (funct == 24)//mul
+        return v1 * v2;
+    else if (funct == 32)//add
+        return v1 + v2;
+    else if (funct == 34)//sub
+        return v1 - v2;
+    else if (funct == 36)//and
+        return v1 & v2;
+    else if (funct == 37)//or
+        return v1 | v2;
+    else if (funct == 38)//xor
+        return v1 ^ v2;
+    else if (funct == 39)//nor
+        return ~(v1 | v2);
+    else if (funct == 42) {//slt
+        if (v1 < v2)
+            return 1;
+        else
+            return 0;
+    }
+    else {
+        printf("wrong ALU function");
+    }
 }
-
-int addSubtract(int X, int Y, int C) {
-    int ret;
-    if (C < 0 || C > 1) {
-        printf("Error in add/subtract operation\n");
-        exit(1);
-    }
-    if (C == 0) ret = X + Y;
-    else ret = X - Y;
-
-    return ret;
-}
-
-int shiftOperation(int V, int Y, int C) {
-    int ret;
-
-    if (C < 0 || C > 3) {
-        printf("Error in shift operation\n");
-        exit(1);
-    }
-    if (C == 0) {
-        ret = Y;
-    }
-    if (C == 1) {
-        ret = Y << V;
-    }
-    if (C == 2) {
-        //srl
-        unsigned int mask = ~0;
-        ret = (Y >> V) & (mask >> V);
-    }
-    if (C == 3) {
-        //sra
-        ret = Y >> V;
-    }
-    return ret;
-}
-
-int checkZero (int S) {
-    int ret;
-    if (!S) ret = 1;
-    else ret = 0;
-    return ret;
-}
-
-int checkSetLess (int X, int Y) {
-    int ret;
-    if (X < Y) ret = 1;
-    else ret = 0;
-    return ret;
-}
-
-int ALU(int X, int Y, int C, int *Z) {
-    int c32, c10;
-    int ret;
-    *Z = 0;
-
-    if (C < 0 || C > 15) {
-        printf("Invalid Command");
-        exit(1);
-    }
-    // 0000 1010
-    c32 = (C>>2) & 3;
-    c10 = C & 3;
-    if (c32 == 0) {
-        int V = X & 31;
-        ret = shiftOperation(V, Y, c10);
-    }
-    if (c32 == 1) {
-        //set less
-        ret = checkSetLess(X, Y);
-    }
-    if (c32 == 2) {
-        //addsub
-        int C = c10 & 1;
-        ret = addSubtract(X, Y, C);
-        *Z = checkZero(ret);
-    }
-    if (c32 == 3) {
-        //logical
-        ret = logicOperation(X, Y, c10);
-    }
-
-    return ret;
-}
-
 // end of ALU
 
 //레지스터 접근 함수
