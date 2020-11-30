@@ -120,37 +120,47 @@ void setPC(unsigned int val) {
 // }
 
 // start of ALU
-int ALU(int v1, int v2, int funct) {
-    if (funct == 0)//sll
-        return v1 << v2;
-    else if (funct == 2) {//srl
-        return (v1 >> v2) & (0xffffffff >> v2);
-    }
-    else if (funct == 3)//sra
-        return v1 >> v2;
-    else if (funct == 24)//mul
-        return v1 * v2;
-    else if (funct == 32)//add
-        return v1 + v2;
-    else if (funct == 34)//sub
-        return v1 - v2;
-    else if (funct == 36)//and
-        return v1 & v2;
-    else if (funct == 37)//or
-        return v1 | v2;
-    else if (funct == 38)//xor
-        return v1 ^ v2;
-    else if (funct == 39)//nor
-        return ~(v1 | v2);
-    else if (funct == 42) {//slt
-        if (v1 < v2)
-            return 1;
-        else
-            return 0;
+int ALU(int v1, int v2, const INST_REG IR) {
+    if (IR.RI.opcode == R_Format) {
+        switch (IR.RI.funct) {
+            case 0: //sll
+                return v1 << v2;
+            case 2: //srl
+                return (v1 >> v2) & (0xffffffff >> v2);
+            case 3: //sra
+                return v1 >> v2;
+            case 24: //mul
+                return v1 * v2;
+            case 32: //add
+                return v1 + v2;
+            case 34: //sub
+                return v1 - v2;
+            case 36: //and
+                return v1 & v2;
+            case 37: //or
+                return v1 | v2;
+            case 42: //slt
+                if (v1 < v2)
+                    return 1;
+                else
+                    return 0;
+        }
     }
     else {
-        printf("wrong ALU function");
+        switch (IR.II.opcode & LOWER_3BIT) {
+            case 0://addi
+                return 0;
+            case 2://slti
+                return 0;
+            case 4://andi
+                return 0;
+            case 5://ori
+                return 0;
+            case 6://xori
+                return 0;
+        }
     }
+    printf("wrong ALU function");
 }
 // end of ALU
 
