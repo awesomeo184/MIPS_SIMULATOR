@@ -330,7 +330,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 	if (IR.IR.RI.opcode == R_Format) { //RFormat
 		switch (((IR.IR.RI.funct) & UPPER_3BIT) >> 3) { //상위 3bit로 명령어 종류 파악
 		case SHIFT: //shift
-			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rt, IR.IR.RI.shamt, IR.IR.RI.funct), WRITE);
+			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rt, IR.IR.RI.shamt, IR.IR), WRITE);
 			setPC(PC + 4);
 			break;
 
@@ -354,7 +354,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 			break;
 
 		default: //나머지 명령어들
-			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rs, IR.IR.RI.rt, IR.IR.RI.funct), WRITE);
+			REG(IR.IR.RI.rd, ALU(IR.IR.RI.rs, IR.IR.RI.rt, IR.IR), WRITE);
 			setPC(PC + 4);
 		}
 	}
@@ -402,7 +402,7 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 				REG(IR.IR.II.rt, IR.IR.II.offset << 16, WRITE); //상위 16bit를 읽어서 저장
 			}
 			else { //그외 imm 사용하는 명령어들
-				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR.II.opcode), WRITE);
+				REG(IR.IR.II.rt, ALU(IR.IR.II.rs, IR.IR.II.offset, IR.IR), WRITE);
 			}
 
 			setPC(PC + 4);
@@ -438,7 +438,6 @@ void conductInstruction(const INST IR) { //실제 명령어들을 실행시키�
 		}
 	}
 }
-
 
 void waitInput() { //화면 지우기 전에 입력을 기다리는 함수
 	printf("Press Enter to continue...\n");
