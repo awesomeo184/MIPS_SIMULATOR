@@ -185,7 +185,7 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 	offset = A & 0xFFFFF;
 
 	if (sel == 0x004)
-		pM = progMEM;         // program memory
+		pM = progMEM;  // program memory
 
 	else if (sel == 0x100)
 		pM = dataMEM;  // data memory
@@ -212,8 +212,9 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 			return (pM[offset] | (pM[offset + 1] << 8));
 		}
 		else if (nRW == WRITE) { // write
-			pM[offset] = V;
-			pM[offset + 1] = V >> 8;
+			for (int i = 0; i < HWORD; i++) {
+				pM[offset + i] = V >> (i * 8);
+			}
 		}
 	}
 
@@ -222,10 +223,9 @@ int MEM(unsigned int A, int V, int nRW, int S) {
 			return (pM[offset] | (pM[offset + 1] << 8) | (pM[offset + 2] << 16) | (pM[offset + 3] << 24));
 		}
 		else if (nRW == WRITE) { // write
-			pM[offset] = V;
-			pM[offset + 1] = V >> 8;
-			pM[offset + 2] = V >> 16;
-			pM[offset + 3] = V >> 24;
+			for (int i = 0; i < WORD; i++) {
+				pM[offset + i] = V >> (i * 8);
+			}
 		}
 	}
 
