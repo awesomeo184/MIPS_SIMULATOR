@@ -165,7 +165,7 @@ int ALU(int v1, int v2, const INST_REG IR) {
 // end of ALU
 
 //레지스터 접근 함수
-int REG(int A, unsigned int v, int nRW) {
+int REG(int A, long long v, int nRW) {
 	if (nRW == 0) return reg[A];		//READ: 0,WRITE: 1
 	if (nRW == 1) reg[A] = v;
 
