@@ -656,24 +656,33 @@ void step()
 			setPC(address);
 			break;
 		case 'r':
+			system("cls");
 			viewRegister();
+			waitInput();
 			break;
 		case 'm':
+			system("cls");
 			viewMemory();
+			waitInput();
 			break;
 		case 's':
 			scanf("%c", &selection2);
 			switch (selection2) {
 			case 'r':
+				system("cls");
 				setReg();
+				waitInput();
 				break;
 			case 'm':
+				system("cls");
 				setMem();
+				waitInput();
 				break;
 			}
 		}
-
+		
 		if (i < instructionNumber * INST_SIZE - INST_SIZE) {
+			
 			system("cls");
 		}
 
