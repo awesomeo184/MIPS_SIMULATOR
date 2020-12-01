@@ -542,10 +542,10 @@ void viewRegister() {
 	int i = 0;
 
 	for (i = 0; i < 32; i++) {
-		printf("[$%d] : %d\n", i, reg[i]);
+		printf("[$%d] : %X\n", i, reg[i]);
 	}
-	
-	
+
+
 }
 // 나중에 최종 때 지우겠습니다!!
 // void printMemory(unsigned int start, unsigned int end){
@@ -665,6 +665,9 @@ void step()
 			viewMemory();
 			waitInput();
 			break;
+		case 'x':
+			exit(0);
+			break;
 		case 's':
 			scanf("%c", &selection2);
 			switch (selection2) {
@@ -680,9 +683,9 @@ void step()
 				break;
 			}
 		}
-		
+
 		if (i < instructionNumber * INST_SIZE - INST_SIZE) {
-			
+
 			system("cls");
 		}
 
