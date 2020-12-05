@@ -137,15 +137,18 @@ int ALU(int v1, int v2, const INST_REG IR) {
     else {
         switch (IR.II.opcode & LOWER_3BIT) {
             case 0://addi
-                return 0;
+                return v1 + v2;
             case 2://slti
-                return 0;
+                if (v1 < v2)
+                    return 1;
+                else
+                    return 0;
             case 4://andi
-                return 0;
+                return v1 & v2;
             case 5://ori
-                return 0;
+                return v1 | v2;
             case 6://xori
-                return 0;
+                return v1 ^ v2;
         }
     }
     printf("wrong ALU function");
