@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <sys/errno.h>
 #define BYTE 1 //바이트
 #define HWORD 2 //하프워드
 #define WORD 4 //워드
@@ -95,17 +94,6 @@ unsigned char progMEM[0x100000], dataMEM[0x100000], stackMEM[0x100000];
 unsigned int instructionNumber = 0; //명령어의 개수를 저장할 변수
 unsigned int dataNumber = 0; //데이터의 개수를 저장할 변수
 unsigned int fileLoad = UNLOADED;
-
-// fopen_s adaptor for MacOS
-errno_t fopen_s(FILE **f, const char *name, const char *mode) {
-    errno_t ret = 0;
-    assert(f);
-    *f = fopen(name, mode);
-    /* Can't be sure about 1-to-1 mapping of errno and MS' errno_t */
-    if (!*f)
-        ret = errno;
-    return ret;
-}
 
 void setPC(unsigned int val) {
 	PC = val;
